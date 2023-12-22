@@ -19,6 +19,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind((CONTROLLER_IP, NC_PORT))
 
 ## Initiate the switch
+req_sn_field = struct.pack("R", 0)
 op = NC_UPDATE_REQUEST
 op_field = struct.pack("B", op)
 f = open(path_hot, "r")
@@ -36,7 +37,7 @@ for line in f.readlines():
     for i in range(len(key_body)):
         key_field += struct.pack("B", key_body[i])
     
-    packet = op_field + key_field
+    packet = req_sn_field + op_field + key_field
     s.sendto(packet, (SERVER_IP, NC_PORT))
     time.sleep(0.001)
 f.close()
@@ -45,8 +46,9 @@ f.close()
 #f = open(path_log, "w")
 while True:
     packet, addr = s.recvfrom(2048)
-    op_field = packet[0]
-    key_field = packet[1:len_key + 1]
+    req_sn_field = packet[0]
+    op_field = packet[1]
+    key_field = packet[2:len_key + 1]
     load_field = packet[len_key + 1:]
     
     op = struct.unpack("B", op_field)[0]

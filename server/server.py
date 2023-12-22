@@ -58,9 +58,11 @@ s.bind((SERVER_IP, NC_PORT))
 #f = open(path_log, "w")
 while True:
     packet, addr = s.recvfrom(2048)
-    op_field = packet[0]
-    key_field = packet[1:]
+    req_sn_field = packet[0]
+    op_field = packet[1]
+    key_field = packet[2:]
     
+    req_sn = struct.unpack("R", req_sn_field)[0]
     op = struct.unpack("B", op_field)[0]
     key_header = struct.unpack(">I", key_field[:4])[0]
     
@@ -68,14 +70,16 @@ while True:
         op = NC_READ_REPLY
         op_field = struct.pack("B", op)
         key_field, val_field = kv[key_header]
-        packet = op_field + key_field + val_field
+        req_sn_field = struct.pack("R", req_sn)
+        packet = req_sn_field + op_field + key_field + val_field
         s.sendto(packet, (CLIENT_IP, NC_PORT))
         counter = counter + 1
     elif (op == NC_UPDATE_REQUEST):
         op = NC_UPDATE_REPLY
         op_field = struct.pack("B", op)
         key_field, val_field = kv[key_header]
-        packet = op_field + key_field + val_field
+        req_sn_field = struct.pack("R", req_sn)
+        packet = req_sn_field + op_field + key_field + val_field
         s.sendto(packet, (CONTROLLER_IP, NC_PORT))
     
     #f.write(str(op) + ' ')
