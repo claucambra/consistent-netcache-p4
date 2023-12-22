@@ -26,8 +26,8 @@ CLI_PATH=$BMV2_PATH/targets/simple_switch/sswitch_CLI
 
 $P4C_BM_SCRIPT ../p4src/netcache.p4 --json netcache.json
 # This gives libtool the opportunity to "warm-up"
-sudo $SWITCH_PATH >/dev/null 2>&1
-sudo PYTHONPATH=$PYTHONPATH:$BMV2_PATH/mininet/ python topo.py \
+$SWITCH_PATH >/dev/null 2>&1
+PYTHONPATH=$PYTHONPATH:$BMV2_PATH/mininet/ python topo.py \
     --behavioral-exe $SWITCH_PATH \
     --json netcache.json \
     --cli $CLI_PATH
